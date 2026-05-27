@@ -1,0 +1,31 @@
+﻿:root {
+  --primary: #1a7a4a;
+  --primary-light: #2ecc71;
+  --primary-dark: #145c38;
+  --accent: #f39c12;
+  --bg: #f5f7fa;
+  --panel: #ffffff;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --border: #e1e8ed;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 10px;
+  --header-height: 56px;
+  --summary-height: 64px;
+  --sidebar-width: 350px;
+  
+  /* Spacing System - Semantic Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+  
+  /* Section spacing: tight grouping vs generous separation */
+  --section-gap-tight: 12px;
+  --section-gap-generous: 24px;
+  
+  /* Density multiplier for responsive breathing */
+  --p-density: 1;
+}
