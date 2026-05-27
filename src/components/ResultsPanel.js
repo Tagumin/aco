@@ -124,7 +124,9 @@ const ResultsPanel = ({
   return (
     <>
       <div className="section">
-        <div className="section-title">Optimization Results</div>
+        <div className="section-title">
+          <span>🏆</span> Optimization Results
+        </div>
 
         <div className="cost-card">
           <h3>Total Estimated Cost</h3>

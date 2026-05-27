@@ -1,14 +1,14 @@
 :root {
   --primary: #1a7a4a;
   --primary-light: #2ecc71;
-  --primary-dark: #145c38;
+  --primary-dark: #115232;
   --accent: #f39c12;
-  --bg: #f5f7fa;
+  --bg: #f4f7f4;
   --panel: #ffffff;
-  --text: #2c3e50;
-  --text-light: #7f8c8d;
-  --border: #e1e8ed;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --text: #16281e;
+  --text-light: #586b60;
+  --border: #e0e6e0;
+  --shadow: 0 2px 12px rgba(22, 40, 30, 0.06);
   --radius: 10px;
   --header-height: 56px;
   --summary-height: 64px;
@@ -388,9 +388,9 @@ input:disabled {
 /* Convergence Box */
 .convergence-box {
   padding: calc(var(--p-density, 1) * var(--space-md));
-  background: rgba(46, 204, 113, 0.08);
-  border-left: 3px solid var(--primary-light);
-  border-radius: 4px;
+  background: rgba(46, 204, 113, 0.05);
+  border: 1px solid rgba(46, 204, 113, 0.25);
+  border-radius: 8px;
   font-size: 13px;
   color: var(--primary-dark);
   font-weight: 500;
@@ -609,22 +609,25 @@ input:disabled {
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   z-index: 10000;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .notification.success {
-  background: white;
-  border-left: 4px solid var(--primary-light);
-  color: var(--text);
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  color: #389e0d;
 }
 
 .notification.error {
-  background: white;
-  border-left: 4px solid #e74c3c;
-  color: var(--text);
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #cf1322;
 }
 
 @keyframes slideIn {
@@ -952,13 +955,14 @@ input:disabled {
 .modal-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 0 24px 24px 24px;
 }
 
 .modal-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  margin-top: 16px;
 }
 
 .modal-table th,
@@ -977,6 +981,7 @@ input:disabled {
   background: var(--bg);
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .modal-table tbody tr {

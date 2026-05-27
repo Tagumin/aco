@@ -1,11 +1,14 @@
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 const BIGDATACLOUD_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 
-export const searchLocation = async (query, countrycodes = 'id') => {
+export const searchLocation = async (query, countrycodes = 'id', signal = null) => {
   if (!query || query.length < 3) return [];
   try {
     const url = `${NOMINATIM_URL}/search?format=json&q=${encodeURIComponent(query)}&countrycodes=${countrycodes}&limit=5`;
-    const response = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    const response = await fetch(url, {
+      headers: { 'Accept-Language': 'en' },
+      signal,
+    });
     if (!response.ok) throw new Error('Nominatim error');
     const data = await response.json();
     return data.map(item => ({
@@ -14,6 +17,7 @@ export const searchLocation = async (query, countrycodes = 'id') => {
       lon: parseFloat(item.lon),
     }));
   } catch (err) {
+    if (err.name === 'AbortError') return null; // Cancelled — not an error
     console.warn('Geocoding search failed:', err);
     return [];
   }

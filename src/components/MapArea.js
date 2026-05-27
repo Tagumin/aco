@@ -117,22 +117,26 @@ const MapArea = ({
         )}
 
         {/* Destination Markers */}
-        {validDestinations.map((dest, idx) => (
-          <Marker
-            key={dest.id}
-            position={[dest.lat, dest.lng]}
-            icon={createCustomIcon(dest.color, String(idx + 1))}
-            draggable={!isLocked}
-            eventHandlers={{
-              dragend: (e) => handleMarkerDrag(dest.id, e.target.getLatLng()),
-            }}
-          >
-            <Popup>
-              <strong>Destination {idx + 1}</strong><br />
-              {dest.name || `${dest.lat.toFixed(4)}, ${dest.lng.toFixed(4)}`}
-            </Popup>
-          </Marker>
-        ))}
+        {validDestinations.map((dest) => {
+          const originalIdx = destinations.findIndex((d) => d.id === dest.id);
+          const displayNum = originalIdx !== -1 ? originalIdx + 1 : "?";
+          return (
+            <Marker
+              key={dest.id}
+              position={[dest.lat, dest.lng]}
+              icon={createCustomIcon(dest.color, String(displayNum))}
+              draggable={!isLocked}
+              eventHandlers={{
+                dragend: (e) => handleMarkerDrag(dest.id, e.target.getLatLng()),
+              }}
+            >
+              <Popup>
+                <strong>Destination {displayNum}</strong><br />
+                {dest.name || `${dest.lat.toFixed(4)}, ${dest.lng.toFixed(4)}`}
+              </Popup>
+            </Marker>
+          );
+        })}
 
         {/* Route Polylines - USE ACTUAL ROAD GEOMETRY */}
         {routePolylines.map((poly, idx) => {

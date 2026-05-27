@@ -121,7 +121,7 @@ const WarehouseSection = ({
       <div className="section-hint">Click the map or search for a place</div>
       {origin && (
         <div style={{ marginTop: 8, fontSize: 12, color: "var(--primary)" }}>
-          ?{" "}
+          📍{" "}
           {origin.name ||
             `Set at ${origin.lat.toFixed(4)}, ${origin.lng.toFixed(4)}`}
         </div>

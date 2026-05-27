@@ -65,7 +65,9 @@ const ACOSettingsSection = ({
 
   return (
     <div className="section">
-      <div className="section-title">ACO Metaheuristic</div>
+      <div className="section-title">
+        <span>🐜</span> ACO Metaheuristic
+      </div>
       <div className="tabs">
         <button
           className={`tab ${mode === "auto" ? "active" : ""}`}
