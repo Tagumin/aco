@@ -1,6 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { formatNumber, formatCurrency, formatTime } from "../utils/helpers";
+
+// Animated count-up for currency values
+const CountUp = ({ value, formatter = formatCurrency, duration = 1200 }) => {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef(null);
+  const startRef = useRef(null);
+
+  useEffect(() => {
+    // Respect reduced motion
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setDisplay(value);
+      return;
+    }
+
+    startRef.current = null;
+    const animate = (timestamp) => {
+      if (!startRef.current) startRef.current = timestamp;
+      const elapsed = timestamp - startRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      // Exponential ease-out (quart)
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setDisplay(Math.round(value * eased));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplay(value);
+      }
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, duration]);
+
+  return <span className="count-up">{formatter(display)}</span>;
+};
 
 const ResultsPanel = ({
   results,
@@ -36,7 +73,7 @@ const ResultsPanel = ({
     fuelPrice = 10000,
   } = results;
 
-  const TableContent = ({ isModal = false }) => (
+  const renderTable = (isModal = false) => (
     <table className={isModal ? "modal-table" : "results-table"}>
       <colgroup>
         <col style={{ width: "8%" }} />
@@ -91,7 +128,9 @@ const ResultsPanel = ({
             <strong>{formatNumber(fuelUsed, 2)} L</strong>
           </td>
           <td>
-            <strong>{formatCurrency(totalCost - (otherCosts || 0))}</strong>
+            <strong>
+              {isModal ? <CountUp value={totalCost - (otherCosts || 0)} /> : formatCurrency(totalCost - (otherCosts || 0))}
+            </strong>
           </td>
         </tr>
         {otherCosts > 0 && (
@@ -104,16 +143,13 @@ const ResultsPanel = ({
             </td>
           </tr>
         )}
-        <tr
-          className="total-row"
-          style={{ background: "rgba(26,122,74,0.08)" }}
-        >
+        <tr className="total-row">
           <td colSpan={5}>
             <strong>Total Cost</strong>
           </td>
           <td>
             <strong style={{ color: "var(--primary)" }}>
-              {formatCurrency(totalCost)}
+              {isModal ? <CountUp value={totalCost} duration={1400} /> : formatCurrency(totalCost)}
             </strong>
           </td>
         </tr>
@@ -218,25 +254,58 @@ const ResultsPanel = ({
               View Full Table
             </button>
           </div>
-          <TableContent isModal={false} />
+          {renderTable(false)}
         </div>
       </div>
 
       {showModal &&
         createPortal(
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div
+            className="modal-overlay"
+            onClick={() => setShowModal(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowModal(false)}
+            tabIndex={-1}
+            ref={(el) => el && el.focus()}
+            style={{ outline: 'none' }}
+          >
             <div className="modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>Segment Details - Full View</h2>
+                <div>
+                  <h2>Segment Details</h2>
+                  <div style={{
+                    fontSize: 12,
+                    color: 'var(--text-light)',
+                    marginTop: 2,
+                    fontWeight: 400,
+                  }}>
+                    {segments.length} segment{segments.length !== 1 ? 's' : ''} · {formatNumber(totalDistance)} km total
+                  </div>
+                </div>
                 <button
                   className="modal-close"
                   onClick={() => setShowModal(false)}
+                  aria-label="Close"
                 >
                   ×
                 </button>
               </div>
               <div className="modal-content">
-                <TableContent isModal={true} />
+                {renderTable(true)}
+                <div style={{
+                  marginTop: 16,
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  background: 'oklch(0.97 0.008 155)',
+                  fontSize: 12,
+                  color: 'var(--text-light)',
+                  display: 'flex',
+                  gap: 20,
+                  flexWrap: 'wrap',
+                }}>
+                  <span>⛽ Fuel rate: {fuelConsumption} km/L</span>
+                  <span>💰 Fuel price: {formatCurrency(fuelPrice)}/L</span>
+                  <span>📊 Avg cost/km: {formatCurrency(costPerKm)}</span>
+                </div>
               </div>
             </div>
           </div>,
