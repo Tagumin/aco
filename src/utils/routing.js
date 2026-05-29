@@ -37,8 +37,21 @@ export const getDistanceMatrix = async (points) => {
     if (data.code === 'Ok') {
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
-          distances[i][j] = (data.distances[i][j] || 0) / 1000;
-          durations[i][j] = (data.durations[i][j] || 0) / 60;
+          if (i === j) {
+            distances[i][j] = 0;
+            durations[i][j] = 0;
+          } else {
+            const valDist = data.distances?.[i]?.[j];
+            const valDur = data.durations?.[i]?.[j];
+            if (valDist === null || valDist === undefined || valDist === 0) {
+              const d = haversineDistance(points[i].lat, points[i].lng, points[j].lat, points[j].lng);
+              distances[i][j] = d;
+              durations[i][j] = d * 1.5;
+            } else {
+              distances[i][j] = valDist / 1000;
+              durations[i][j] = (valDur || 0) / 60;
+            }
+          }
         }
       }
       return { distances, durations };

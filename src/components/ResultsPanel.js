@@ -47,6 +47,17 @@ const ResultsPanel = ({
 }) => {
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    if (!showModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showModal]);
+
   if (!results) {
     return (
       <div className="section">
@@ -205,7 +216,12 @@ const ResultsPanel = ({
             Optimized Route Order
           </div>
           <div className="route-order">
-            <div className="route-step">
+            <div
+              className="route-step"
+              onMouseEnter={() => setHighlightedSegment(0)}
+              onMouseLeave={() => setHighlightedSegment(null)}
+              style={{ cursor: "pointer" }}
+            >
               <span>W</span>
               <span>Warehouse (Start)</span>
             </div>
@@ -223,7 +239,12 @@ const ResultsPanel = ({
               </React.Fragment>
             ))}
             <div className="route-arrow">⬇️</div>
-            <div className="route-step">
+            <div
+              className="route-step"
+              onMouseEnter={() => setHighlightedSegment(segments.length - 1)}
+              onMouseLeave={() => setHighlightedSegment(null)}
+              style={{ cursor: "pointer" }}
+            >
               <span>W</span>
               <span>Warehouse (Return)</span>
             </div>

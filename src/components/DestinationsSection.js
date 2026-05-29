@@ -12,7 +12,7 @@ const DestinationItem = ({
 }) => {
   const [query, setQuery] = useState(dest.name || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const { suggestions, fetchSuggestions, clearSuggestions } = useGeocoding();
+  const { suggestions, loading, fetchSuggestions, clearSuggestions } = useGeocoding();
   const containerRef = useRef(null);
 
   // Sync query when dest.name changes externally (including when cleared)
@@ -37,14 +37,20 @@ const DestinationItem = ({
   const handleInputChange = (e) => {
     const val = e.target.value;
     setQuery(val);
-    onUpdate(dest.id, { name: val });
     if (val.length >= 3) {
       fetchSuggestions(val);
       setShowSuggestions(true);
     } else {
       clearSuggestions();
       setShowSuggestions(false);
+      if (val === "") {
+        onUpdate(dest.id, { name: "" });
+      }
     }
+  };
+
+  const handleBlur = () => {
+    onUpdate(dest.id, { name: query });
   };
 
   const handleSelect = async (item) => {
@@ -63,45 +69,59 @@ const DestinationItem = ({
         {index + 1}
       </div>
       <div className="destination-inputs">
-        <div className="input-row">
-          <input
-            type="search"
-            placeholder={`Destination ${index + 1}...`}
-            value={query}
-            onChange={handleInputChange}
-            disabled={isLocked}
-            style={{ flex: 1 }}
-          />
-          <button
-            className={`btn btn-icon btn-secondary ${isActive ? "pick-mode-active" : ""}`}
-            onClick={() => setActive(isActive ? null : dest.id)}
-            disabled={isLocked}
-            title="Pick on map"
-          >
-            🗺️
-          </button>
-          <button
-            className="btn btn-icon btn-danger"
-            onClick={() => onRemove(dest.id)}
-            disabled={isLocked}
-            title="Remove"
-          >
-            ✕
-          </button>
-        </div>
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="suggestions-list">
-            {suggestions.map((item, idx) => (
-              <div
-                key={idx}
-                className="suggestion-item"
-                onClick={() => handleSelect(item)}
-              >
-                {item.display_name}
-              </div>
-            ))}
+        <div className="autocomplete-container">
+          <div className="input-row">
+            <input
+              type="search"
+              placeholder={`Destination ${index + 1}...`}
+              value={query}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              disabled={isLocked}
+              style={{ flex: 1 }}
+            />
+            <button
+              className={`btn btn-icon btn-secondary ${isActive ? "pick-mode-active" : ""}`}
+              onClick={() => setActive(isActive ? null : dest.id)}
+              disabled={isLocked}
+              title="Pick on map"
+            >
+              🗺️
+            </button>
+            <button
+              className="btn btn-icon btn-danger"
+              onClick={() => onRemove(dest.id)}
+              disabled={isLocked}
+              title="Remove"
+            >
+              ✕
+            </button>
           </div>
-        )}
+          {showSuggestions && (loading || suggestions.length > 0 || query.length >= 3) && (
+            <div className="suggestions-list">
+              {loading && (
+                <div style={{ padding: "10px 12px", fontSize: "13px", color: "var(--text-light)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span className="spinner-mini" style={{ display: "inline-block", width: "12px", height: "12px", border: "2px solid var(--border)", borderTopColor: "var(--primary)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  <span>Searching...</span>
+                </div>
+              )}
+              {!loading && suggestions.length === 0 && query.length >= 3 && (
+                <div style={{ padding: "10px 12px", fontSize: "13px", color: "var(--text-light)", fontStyle: "italic" }}>
+                  ❌ No locations found
+                </div>
+              )}
+              {!loading && suggestions.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="suggestion-item"
+                  onClick={() => handleSelect(item)}
+                >
+                  {item.display_name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         {dest.lat && dest.name && (
           <div style={{ fontSize: 11, color: "var(--text-light)" }}>
             🗺️{" "}

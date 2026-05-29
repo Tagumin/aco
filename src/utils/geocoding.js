@@ -1,10 +1,13 @@
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
 const BIGDATACLOUD_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 
-export const searchLocation = async (query, countrycodes = 'id', signal = null) => {
+export const searchLocation = async (query, countrycodes = '', signal = null) => {
   if (!query || query.length < 3) return [];
   try {
-    const url = `${NOMINATIM_URL}/search?format=json&q=${encodeURIComponent(query)}&countrycodes=${countrycodes}&limit=5`;
+    let url = `${NOMINATIM_URL}/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+    if (countrycodes) {
+      url += `&countrycodes=${countrycodes}`;
+    }
     const response = await fetch(url, {
       headers: { 'Accept-Language': 'en' },
       signal,
