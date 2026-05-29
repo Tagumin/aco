@@ -36,11 +36,6 @@ const ActionArea = ({ isRunning, progress, bestDistance, converged, onRun, onCle
             <>🐜 Run ACO</>
           )}
         </button>
-        {hasResults && (
-          <button className="btn btn-secondary" onClick={onClear}>
-            🗑️ Clear All
-          </button>
-        )}
       </div>
     </div>
   );

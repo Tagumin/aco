@@ -12,11 +12,11 @@ export const debounce = (fn, ms) => {
 };
 
 export const formatCurrency = (value) => {
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('ms-MY', {
     style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency: 'MYR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
 };
 

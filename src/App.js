@@ -15,7 +15,7 @@ function App() {
     { id: 2, lat: null, lng: null, name: "", color: "#3498db" },
     { id: 3, lat: null, lng: null, name: "", color: "#2ecc71" },
   ]);
-  const [fuelPrice, setFuelPrice] = useState(10000);
+  const [fuelPrice, setFuelPrice] = useState(2.05);
   const [fuelConsumption, setFuelConsumption] = useState(8);
   const [otherCosts, setOtherCosts] = useState(0);
   const [acoParams, setAcoParams] = useState({
@@ -38,6 +38,7 @@ function App() {
   const [isPickingOrigin, setIsPickingOrigin] = useState(false);
   const [highlightedSegment, setHighlightedSegment] = useState(null);
   const [routePolylines, setRoutePolylines] = useState([]);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const mapRef = useRef(null);
 
   const showNotification = useCallback((message, type = "success") => {
@@ -134,12 +135,16 @@ function App() {
   const handleMapClick = useCallback(
     async (lat, lng) => {
       if (isPickingOrigin) {
+        setIsGeocoding(true);
         const name = await reverseGeocode(lat, lng);
+        setIsGeocoding(false);
         setOriginPoint(lat, lng, name);
         setIsPickingOrigin(false);
         showNotification("Origin set: " + name, "success");
       } else if (activeDestinationId !== null) {
+        setIsGeocoding(true);
         const name = await reverseGeocode(lat, lng);
+        setIsGeocoding(false);
         updateDestination(activeDestinationId, { lat, lng, name });
         setActiveDestinationId(null);
         showNotification(`Destination set: ${name}`, "success");
@@ -220,12 +225,14 @@ function App() {
           onMapClick={handleMapClick}
           updateDestination={updateDestination}
           setOriginPoint={setOriginPoint}
-          isLocked={isLocked}
+          isLocked={isLocked || isRunning}
           highlightedSegment={highlightedSegment}
           setHighlightedSegment={setHighlightedSegment}
           routePolylines={routePolylines}
           setRoutePolylines={setRoutePolylines}
           mapRef={mapRef}
+          isGeocoding={isGeocoding}
+          showNotification={showNotification}
           />
       </div>
       <SummaryBar

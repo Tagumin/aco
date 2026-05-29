@@ -132,10 +132,21 @@ const Sidebar = ({
   return (
     <aside className="sidebar">
       <div className="sidebar-scroll">
+        {results && (
+          <div className="clear-banner">
+            <div className="clear-banner-info">
+              <span className="clear-banner-icon">✅</span>
+              <span>Optimization complete</span>
+            </div>
+            <button className="btn btn-clear-banner" onClick={clearAll}>
+              🗑️ Clear & Reset
+            </button>
+          </div>
+        )}
         <WarehouseSection
           origin={origin}
           setOriginPoint={setOriginPoint}
-          isLocked={isLocked}
+          isLocked={isLocked || isRunning}
           isPickingOrigin={isPickingOrigin}
           setIsPickingOrigin={setIsPickingOrigin}
           showNotification={showNotification}
@@ -145,7 +156,7 @@ const Sidebar = ({
           addDestination={addDestination}
           removeDestination={removeDestination}
           updateDestination={updateDestination}
-          isLocked={isLocked}
+          isLocked={isLocked || isRunning}
           activeDestinationId={activeDestinationId}
           setActiveDestinationId={setActiveDestinationId}
         />
@@ -156,14 +167,14 @@ const Sidebar = ({
           setFuelConsumption={setFuelConsumption}
           otherCosts={otherCosts}
           setOtherCosts={setOtherCosts}
-          isLocked={isLocked}
+          isLocked={isLocked || isRunning}
         />
         <ACOSettingsSection
           acoParams={acoParams}
           setAcoParams={setAcoParams}
           mode={mode}
           setMode={setMode}
-          isLocked={isLocked}
+          isLocked={isLocked || isRunning}
         />
         <ActionArea
           isRunning={isRunning}

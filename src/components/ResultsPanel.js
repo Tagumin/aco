@@ -70,7 +70,7 @@ const ResultsPanel = ({
     orderedDestinations,
     otherCosts,
     fuelConsumption = 8,
-    fuelPrice = 10000,
+    fuelPrice = 2.05,
   } = results;
 
   const renderTable = (isModal = false) => (

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import { reverseGeocode } from '../utils/geocoding';
 
 const MapClickHandler = ({ onMapClick, isPickingOrigin, activeDestinationId }) => {
   useMapEvents({
@@ -67,21 +68,47 @@ const MapArea = ({
   routePolylines,
   setRoutePolylines,
   mapRef,
+  isGeocoding,
+  showNotification,
 }) => {
   const defaultCenter = [-6.5744, 107.7592];
   const defaultZoom = 11;
+  const [isDraggingGeocoding, setIsDraggingGeocoding] = useState(false);
 
-  const handleMarkerDrag = useCallback((id, newLatLng, isOrigin = false) => {
+  const handleMarkerDrag = useCallback(async (id, newLatLng, isOrigin = false) => {
     if (isLocked) return;
-    if (isOrigin) {
-      setOriginPoint(newLatLng.lat, newLatLng.lng, origin?.name);
-    } else {
-      updateDestination(id, { lat: newLatLng.lat, lng: newLatLng.lng });
+    setIsDraggingGeocoding(true);
+    try {
+      const name = await reverseGeocode(newLatLng.lat, newLatLng.lng);
+      if (isOrigin) {
+        setOriginPoint(newLatLng.lat, newLatLng.lng, name);
+      } else {
+        updateDestination(id, { lat: newLatLng.lat, lng: newLatLng.lng, name });
+      }
+      if (showNotification) {
+        showNotification(`Location updated: ${name}`, 'success');
+      }
+    } catch (err) {
+      // fallback: update coords without name
+      if (isOrigin) {
+        setOriginPoint(newLatLng.lat, newLatLng.lng, `${newLatLng.lat.toFixed(4)}, ${newLatLng.lng.toFixed(4)}`);
+      } else {
+        updateDestination(id, { lat: newLatLng.lat, lng: newLatLng.lng, name: `${newLatLng.lat.toFixed(4)}, ${newLatLng.lng.toFixed(4)}` });
+      }
+    } finally {
+      setIsDraggingGeocoding(false);
     }
-  }, [isLocked, origin, setOriginPoint, updateDestination]);
+  }, [isLocked, setOriginPoint, updateDestination, showNotification]);
+
+  // Show loading overlay when geocoding (either from map click or marker drag)
+  const showLoading = isGeocoding || isDraggingGeocoding;
+  // Determine the loading message
+  const loadingMsg = isDraggingGeocoding
+    ? 'Updating location...'
+    : (isPickingOrigin ? 'Locating warehouse...' : 'Locating destination...');
 
   return (
-    <div className="map-container">
+    <div className="map-container" style={{ position: 'relative' }}>
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
@@ -164,6 +191,18 @@ const MapArea = ({
           );
         })}
       </MapContainer>
+
+      {/* Geocoding loading overlay */}
+      {showLoading && (
+        <div className="map-geocoding-overlay">
+          <div className="map-geocoding-spinner">
+            <div className="geocoding-dot" />
+            <div className="geocoding-dot" />
+            <div className="geocoding-dot" />
+          </div>
+          <div className="map-geocoding-text">{loadingMsg}</div>
+        </div>
+      )}
 
       <div className="map-info-box">
         {(isPickingOrigin || activeDestinationId !== null)
